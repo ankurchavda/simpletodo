@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+	<title>ToDoList</title>
+	<link rel="stylesheet" type="text/css" href="/bower_components/bootstrap/dist/css/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+	<script src="/bower_components/jquery/dist/jquery.js"></script>
+	<script src="/bower_components/angular/angular.js"></script>
+	<script src="/bower_components/angular-resource/angular-resource.js"></script>
+	<script src="/bower_components/bootstrap/dist/js/bootstrap.js"></script>
+	<script src="/app.js"></script>
+	<script src="/service.js"></script>
+	<script src="/controller/tasks.js"></script>
+	<script src="/controller/types.js"></script>
+
+
+</head>
+<body ng-controller="IndexController">
+	<div class="container-fluid">
+	<div class="col-sm-2">
+    <nav class="nav-sidebar" >
+		<ul class="nav tabs">
+          <li class="active" ng-repeat="type in Types"><a href="#tab" data-toggle="tab" ng-click="populatetask(type); changeHeader(type.name) ; enableInput()">{{type.name}}</a></li>
+<button class="btn btn-primary btn-lg pull-left" data-toggle="modal" data-target="#editTypeModal"><span class="glyphicon glyphicon-pencil"></span>
+</button>          <!-- Button trigger modal -->
+<button class="btn btn-primary btn-lg pull-right" data-toggle="modal" data-target="#myModalHorizontal"><span class="glyphicon glyphicon-plus"></span>
+</button>		
+		</ul>
+	</nav>
+		<!-- <div><h2 class="add">Place for your add!</h2></div> -->
+</div>
+<form class="form-inline" method="post" id="taskForm" ng-show="formValue" style="margin-top: 30px; margin-left: 170px" ng-submit="addTask(data)">
+    <div class="form-group">
+      <label class="sr-only" for="task">Task:</label>
+      <input type="text" class="form-control" id="task" placeholder="Enter task"  name="name" required ng-model="data.name">
+    </div>
+    <div class="form-group">
+      <label class="sr-only" for="desc">Description:</label>
+      <input type="text" class="form-control" id="desc" placeholder="Enter description" name="description"  required ng-model="data.description">
+    </div>    
+	<button type="submit" class="btn btn-default">Badum Tss!</button>
+</form>
+	<h1 style="color: #0b56a8" ng-show="!formValue">An easy way to remember things!</h1>
+	<h4 style="color: #5d5e60" ng-show="!formValue"> Click on the Types to view, add or edit tasks.</h4>
+
+<!-- tab content -->
+<div class="tab-content col-sm-10" >
+<div class="tab-pane active text-style" id="tab">
+  <h2 id="header"></h2>
+      <table class="table table-hover table-condensed" ng-show="formValue">
+      	<tr >
+      		<th>Task</th>
+      		<th>Description</th>
+      	</tr>
+      	<tr ng-repeat="task in Tasks">
+      		<td>{{task.name}}</td>
+      		<td>{{task.description}}</td>
+      		<td><button class="btn btn-warning" data-toggle="modal" data-target="#editModal" ng-click="populateModal(task)">Edit</button></td>
+      		<td><button class="btn btn-success" ng-click="deleteTask(task)">Completed</button></td>      		
+      	</tr>
+      </table>
+       <hr>
+      <!-- <img src="http://placehold.it/350x250" class="img-rounded pull-right">    -->
+</div>
+</div>
+    
+    
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="myModalHorizontal" tabindex="-1" role="dialog" 
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <button type="button" class="close" 
+                   data-dismiss="modal">
+                       <span aria-hidden="true">&times;</span>
+                       <span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    Add List
+                </h4>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="modal-body">
+                
+                <form class="form-inline" role="form" ng-submit="addType(data1)" id="formId">
+                  <div class="form-group">
+                    <label  class="sr-only"
+                              for="list">List</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" 
+                        id="list" ng-model="data1.name" required placeholder="List Name"/>
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary" ng-click="loadtypes()">
+                    Add!
+                  </button>
+                  </form>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default"
+                        data-dismiss="modal">
+                            Close
+                </button>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" 
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <button type="button" class="close" 
+                   data-dismiss="modal">
+                       <span aria-hidden="true">&times;</span>
+                       <span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    Edit
+                </h4>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="modal-body">
+                
+			<form class="form-horizontal" method="post" id="modalTaskForm" style="margin-top: 20px" ng-submit="editTask(modalValue); changeHeader(modalValue.category)">
+			    <div class="form-group">
+			      <label class="sr-only" for="modalTask">Task:</label>
+			      <input type="text" class="form-control" id="modalTask" placeholder="Enter task"  name="name" ng-model="modalValue.name">
+			    </div>
+			    <div class="form-group">
+			      <label class="sr-only" for="modalDesc">Description:</label>
+			      <input type="text" class="form-control" id="modalDesc" placeholder="Enter description" name="description" ng-model="modalValue.description">
+			    </div>
+				<div class="form-group ">
+			    <label for="category" class="sr-only">Category</label>
+			       		<select id="modalCategory" ng-model="modalValue.category" name="category" class="form-control">
+			      		<option ng-repeat="type in Types" value="{{type.name}}">{{type.name}}</option>
+			       		</select>
+			 	</div>  
+			 	<div class="modal-footer">  
+				<button type="submit" class="btn btn-default btn-primary">Done</button>
+				</div>
+			</form>
+            </div>
+            
+            <!-- Modal Footer -->
+        </div>
+    </div>
+</div>
+<!--Edit Type Modal -->
+<div class="modal fade" id="editTypeModal" tabindex="-1" role="dialog" 
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <button type="button" class="close" 
+                   data-dismiss="modal">
+                       <span aria-hidden="true">&times;</span>
+                       <span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                   Edit Type
+                </h4>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="modal-body">
+                
+                <form class="form-inline" role="form" id="formId">
+                  <div class="form-group">
+                    <label  class="sr-only"
+                              for="list">List</label>
+                    <div class="col-sm-10" ng-repeat= "type in Types">
+                        <input type="text" class="form-control" 
+                        id="list" ng-model="type.name" readonly required placeholder="Type Name"/>
+                        <!-- <button class="btn btn-default btn-success" ng-click="editType(type)">Edit</button> -->
+                        <button class="btn btn-default btn-danger" ng-click="deleteType(type)">Delete</button>
+                    </div>
+                  </div>
+                  </form>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default"
+                        data-dismiss="modal">
+                            Close
+                </button>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$('#formId').submit(function() {
+    $('#myModalHorizontal').modal('hide');
+    return false;
+});
+
+$('#modalTaskForm').submit(function() {
+    $('#editModal').modal('hide');
+    return false;
+});
+</script>
+</body>
+</html>
